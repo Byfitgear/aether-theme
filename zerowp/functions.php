@@ -1,15 +1,12 @@
 <?php
-
 /**
  * Aether Theme Functions
  */
 
 // 主题支持
-function aether_theme_support()
-{
+function aether_theme_support() {
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
-    add_theme_support('automatic-feed-links');
     add_theme_support('html5', array(
         'search-form',
         'comment-form',
@@ -21,8 +18,7 @@ function aether_theme_support()
 add_action('after_setup_theme', 'aether_theme_support');
 
 // 注册菜单
-function aether_register_menus()
-{
+function aether_register_menus() {
     register_nav_menus(array(
         'primary' => __('Primary Menu', 'aether'),
     ));
@@ -30,13 +26,13 @@ function aether_register_menus()
 add_action('init', 'aether_register_menus');
 
 // 移除 WordPress 默认样式和功能
-function aether_remove_default_styles()
-{
+function aether_remove_default_styles() {
     // 移除区块库样式
     wp_dequeue_style('wp-block-library');
     wp_dequeue_style('wp-block-library-theme');
     wp_dequeue_style('classic-theme-styles');
     wp_dequeue_style('global-styles');
+    wp_dequeue_style('wc-blocks-style');
 
     // 移除 emoji 相关
     remove_action('wp_head', 'print_emoji_detection_script', 7);
@@ -48,106 +44,46 @@ add_action('wp_enqueue_scripts', 'aether_remove_default_styles', 100);
 add_action('init', 'aether_remove_default_styles');
 
 // 清理 wp_head 输出
-function aether_clean_head()
-{
-    // 移除 RSD 链接
+function aether_clean_head() {
     remove_action('wp_head', 'rsd_link');
-
-    // 移除 Windows Live Writer
     remove_action('wp_head', 'wlwmanifest_link');
-
-    // 移除 WordPress 版本
     remove_action('wp_head', 'wp_generator');
-
-    // 移除短链接
     remove_action('wp_head', 'wp_shortlink_wp_head');
-
-    // 移除 REST API 链接
     remove_action('wp_head', 'rest_output_link_wp_head');
     remove_action('wp_head', 'wp_oembed_add_discovery_links');
-
-    // 移除 RSS feed 链接
     remove_action('wp_head', 'feed_links', 2);
     remove_action('wp_head', 'feed_links_extra', 3);
-
-    // 移除相邻文章链接
     remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
-
-    // 移除 wp-json 链接
     remove_action('template_redirect', 'rest_output_link_header', 11);
-
-    // 移除 robots meta (我们自己控制)
     remove_filter('wp_robots', 'wp_robots_max_image_preview_large');
-
-    // 移除 canonical 和 shortlink
     remove_action('wp_head', 'rel_canonical');
-    remove_action('wp_head', 'wp_shortlink_wp_head');
-
-    // 移除 oEmbed
-    remove_action('wp_head', 'wp_oembed_add_discovery_links');
     remove_action('wp_head', 'wp_oembed_add_host_js');
-
-    // 移除 wp-block-library-css
-    add_action('wp_enqueue_scripts', function () {
-        wp_dequeue_style('wp-block-library');
-        wp_dequeue_style('wp-block-library-theme');
-        wp_dequeue_style('wc-blocks-style');
-        wp_dequeue_style('global-styles');
-        wp_dequeue_style('classic-theme-styles');
-    }, 100);
+    remove_action('wp_head', 'wp_robots', 1);
+    remove_action('wp_head', 'wp_resource_hints', 2);
 }
 add_action('init', 'aether_clean_head');
 
 // 移除 speculation rules 脚本
 add_filter('wp_speculation_rules_configuration', '__return_null');
 
-// 移除所有不必要的 body class
-function aether_clean_body_class($classes)
-{
-    // 只保留最基本的类
-    $allowed = array('home', 'single', 'page', 'archive', 'error404');
-    $clean_classes = array();
-
-    foreach ($classes as $class) {
-        if (in_array($class, $allowed)) {
-            $clean_classes[] = $class;
-        }
-    }
-
-    return $clean_classes;
+// 简化语言属性
+function aether_language_attributes($output) {
+    return 'lang="' . get_bloginfo('language') . '"';
 }
-add_filter('body_class', 'aether_clean_body_class', 999);
-
-// 完全禁用 robots meta 标签
-add_filter('wp_robots', '__return_empty_array', 999);
-
-// 移除 DNS 预取
-remove_action('wp_head', 'wp_resource_hints', 2);
+add_filter('language_attributes', 'aether_language_attributes');
 
 // 禁用 XML-RPC
 add_filter('xmlrpc_enabled', '__return_false');
 
 // 移除查询字符串
-function aether_remove_query_strings($src)
-{
+function aether_remove_query_strings($src) {
     $parts = explode('?', $src);
     return $parts[0];
 }
 add_filter('script_loader_src', 'aether_remove_query_strings', 15, 1);
 add_filter('style_loader_src', 'aether_remove_query_strings', 15, 1);
 
-// 移除不必要的 meta 标签
-remove_action('wp_head', 'wp_robots', 1);
-
-// 简化语言属性
-function aether_language_attributes($output)
-{
-    return 'lang="' . get_bloginfo('language') . '"';
-}
-add_filter('language_attributes', 'aether_language_attributes');
-
 // 主题自动更新功能
-// 可选：通过设置此常量为 true 来禁用更新检查（用于内网或演示环境）
 if (!defined('AETHER_DISABLE_UPDATE_CHECKS')) {
     define('AETHER_DISABLE_UPDATE_CHECKS', false);
 }
@@ -156,7 +92,6 @@ require_once get_template_directory() . '/inc/theme-updater.php';
 // 处理主题更新时的备份权限问题
 add_filter('upgrader_package_options', function($options) {
     if (isset($options['hook_extra']['theme']) && $options['hook_extra']['theme'] === get_template()) {
-        // 禁用备份功能，避免权限问题
         $options['clear_destination'] = true;
         $options['overwrite_package'] = true;
     }
@@ -164,8 +99,7 @@ add_filter('upgrader_package_options', function($options) {
 });
 
 // 前台加载 htmx 脚本
-function aether_enqueue_front_assets()
-{
+function aether_enqueue_front_assets() {
     if (is_admin()) {
         return;
     }

@@ -8,7 +8,7 @@ get_header();
 <div class="max-w-3xl mx-auto">
     <header class="mb-8 pb-6 border-b border-gray-200">
         <h1 class="text-2xl font-bold">
-            <?php printf(__('搜索结果：%s', 'aether'), '<span class="font-normal text-gray-500">' . get_search_query() . '</span>'); ?>
+            <?php printf(__('搜索结果：%s', 'aether'), '<span class="font-normal text-gray-500">' . esc_html(get_search_query()) . '</span>'); ?>
         </h1>
         <p class="text-sm text-gray-500 mt-1">
             <?php

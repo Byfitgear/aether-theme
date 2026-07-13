@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
-    <meta http-equiv="Content-Type" content="text/html; charset=<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
@@ -11,10 +10,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <?php
-    // 获取 meta title
+    // Meta title
     $meta_title = wp_get_document_title();
 
-    // 获取 meta description
+    // Meta description
     $description = '';
     if (is_singular()) {
         global $post;
@@ -28,15 +27,8 @@
     } elseif (is_home() || is_front_page()) {
         $description = get_bloginfo('description');
     }
-    ?>
 
-    <meta name="title" content="<?php echo esc_attr($meta_title); ?>">
-    <?php if ($description): ?>
-        <meta name="description" content="<?php echo esc_attr($description); ?>">
-    <?php endif; ?>
-
-    <?php
-    // 获取 canonical URL
+    // Canonical URL
     if (is_singular()) {
         $canonical_url = get_permalink();
     } elseif (is_home()) {
@@ -47,8 +39,46 @@
         $term_link = get_term_link(get_queried_object());
         $canonical_url = !is_wp_error($term_link) ? $term_link : home_url('/');
     }
+
+    // OG tags
+    $og_title = $meta_title;
+    $og_description = $description ?: get_bloginfo('name') . ' — ' . get_bloginfo('description');
+    $og_image = '';
+    if (is_singular() && has_post_thumbnail()) {
+        $thumbnail = wp_get_attachment_image_src(get_post_thumbnail_id(), 'large');
+        $og_image = $thumbnail[0];
+    } elseif (is_home() || is_front_page()) {
+        $custom_logo_id = get_theme_mod('custom_logo');
+        if ($custom_logo_id) {
+            $logo = wp_get_attachment_image_src($custom_logo_id, 'medium');
+            if ($logo) $og_image = $logo[0];
+        }
+    }
     ?>
+
+    <meta name="title" content="<?php echo esc_attr($meta_title); ?>">
+    <?php if ($description): ?>
+        <meta name="description" content="<?php echo esc_attr($description); ?>">
+    <?php endif; ?>
     <link rel="canonical" href="<?php echo esc_url($canonical_url); ?>">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="<?php echo is_singular() ? 'article' : 'website'; ?>">
+    <meta property="og:title" content="<?php echo esc_attr($og_title); ?>">
+    <meta property="og:description" content="<?php echo esc_attr($og_description); ?>">
+    <?php if ($og_image): ?>
+        <meta property="og:image" content="<?php echo esc_url($og_image); ?>">
+    <?php endif; ?>
+    <meta property="og:url" content="<?php echo esc_url($canonical_url); ?>">
+    <meta property="og:site_name" content="<?php echo esc_attr(get_bloginfo('name')); ?>">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo esc_attr($og_title); ?>">
+    <meta name="twitter:description" content="<?php echo esc_attr($og_description); ?>">
+    <?php if ($og_image): ?>
+        <meta name="twitter:image" content="<?php echo esc_url($og_image); ?>">
+    <?php endif; ?>
 
     <?php wp_head(); ?>
 </head>
@@ -70,7 +100,7 @@
                             'theme_location' => 'primary',
                             'container' => false,
                             'menu_class' => '',
-                            'link_class' => 'text-gray-600 hover:text-gray-900 transition-colors',
+                            'link_class'   => 'text-gray-600 hover:text-gray-900 transition-colors',
                         ));
                         ?>
                     </nav>
@@ -78,5 +108,4 @@
             </header>
         <?php endif; ?>
 
-        <main class="py-8"><?php // 内容区域开始 
-        ?>
+        <main class="py-8">

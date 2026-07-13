@@ -7,8 +7,7 @@ get_header();
 
 <div class="space-y-12">
     <?php if (have_posts()): ?>
-        <?php while (have_posts()):
-            the_post(); ?>
+        <?php while (have_posts()): the_post(); ?>
             <article id="post-<?php the_ID(); ?>" <?php post_class('border-b border-gray-100 pb-12 last:border-0'); ?>>
                 <header>
                     <h2 class="text-2xl font-bold mb-2">
