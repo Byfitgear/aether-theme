@@ -33,7 +33,7 @@ function aether_register_menus() {
 }
 add_action('init', 'aether_register_menus');
 
-// 移除 WordPress 默认样式和功能
+// 移除 WordPress 默认样式和功能（优先级高于 wp_enqueue_scripts 默认）
 function aether_remove_default_styles() {
     wp_dequeue_style('wp-block-library');
     wp_dequeue_style('wp-block-library-theme');
@@ -47,7 +47,6 @@ function aether_remove_default_styles() {
     remove_action('admin_print_styles', 'print_emoji_styles');
 }
 add_action('wp_enqueue_scripts', 'aether_remove_default_styles', 100);
-add_action('init', 'aether_remove_default_styles');
 
 // 清理 wp_head 输出
 function aether_clean_head() {
@@ -71,12 +70,6 @@ add_action('init', 'aether_clean_head');
 
 // 移除 speculation rules 脚本
 add_filter('wp_speculation_rules_configuration', '__return_null');
-
-// 简化语言属性
-function aether_language_attributes($output) {
-    return 'lang="' . get_bloginfo('language') . '"';
-}
-add_filter('language_attributes', 'aether_language_attributes');
 
 // 禁用 XML-RPC
 add_filter('xmlrpc_enabled', '__return_false');
@@ -104,15 +97,15 @@ add_filter('upgrader_package_options', function($options) {
     return $options;
 });
 
-// 前台加载 htmx 脚本
+// 前台加载静态资源
 function aether_enqueue_front_assets() {
     if (is_admin()) {
         return;
     }
 
+    // htmx
     $htmx_file = get_template_directory() . '/assets/js/htmx.min.js';
     $version = file_exists($htmx_file) ? filemtime($htmx_file) : null;
-
     wp_enqueue_script(
         'aether-htmx',
         get_template_directory_uri() . '/assets/js/htmx.min.js',
@@ -121,7 +114,7 @@ function aether_enqueue_front_assets() {
         true
     );
 
-    // Dark mode script
+    // Dark mode JS
     $dark_mode_file = get_template_directory() . '/assets/js/dark-mode.js';
     $dv = file_exists($dark_mode_file) ? filemtime($dark_mode_file) : null;
     wp_enqueue_script(
@@ -133,28 +126,6 @@ function aether_enqueue_front_assets() {
     );
 }
 add_action('wp_enqueue_scripts', 'aether_enqueue_front_assets', 20);
-
-// ============================================================
-// Dark Mode — 通过 localStorage 持久化，跟随系统偏好
-// ============================================================
-function aether_dark_mode_init() {
-    if (is_admin()) return;
-    ?>
-    <script>
-    (function() {
-        var stored = localStorage.getItem('aether-dark-mode');
-        if (stored === 'true') {
-            document.documentElement.classList.add('dark');
-        } else if (stored === 'false') {
-            document.documentElement.classList.remove('dark');
-        } else if (!('aether-dark-mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-    })();
-    </script>
-    <?php
-}
-add_action('wp_head', 'aether_dark_mode_init', 0);
 
 // ============================================================
 // Custom Logo — 在 Header 中显示（替代纯文字）
@@ -177,14 +148,8 @@ function aether_site_logo() {
 }
 
 // ============================================================
-// Search Optimization — 搜索关键词高亮 + 改进搜索表单
+// 搜索表单 — 改进样式
 // ============================================================
-function aether_search_highlight($text = '') {
-    $text = get_search_query(false);
-    if (empty($text)) return '';
-    return preg_replace('/(' . preg_quote($text, '/') . ')/iu', '<mark class="bg-yellow-200 dark:bg-yellow-800 rounded px-0.5">$1</mark>', $text);
-}
-
 function aether_search_form($form) {
     $form = '<form role="search" method="get" class="flex items-center gap-2" action="' . esc_url(home_url('/')) . '">
         <input type="search"

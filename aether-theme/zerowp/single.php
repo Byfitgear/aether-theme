@@ -26,8 +26,10 @@ get_header();
             <span>·</span>
             <span><?php the_author(); ?></span>
             <?php
-            // 预估阅读时间
-            $read_time = ceil(str_word_count(strip_tags(get_the_content())) / 250);
+            // 预估阅读时间（清理短代码和HTML标签）
+            $content = strip_shortcodes(get_the_content());
+            $content = strip_tags($content);
+            $read_time = ceil(str_word_count($content) / 250);
             ?>
             <span>·</span>
             <span><?php printf(__('%d 分钟阅读', 'aether'), $read_time); ?></span>

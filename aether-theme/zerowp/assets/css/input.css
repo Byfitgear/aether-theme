@@ -1,14 +1,5 @@
 @import "tailwindcss";
 
-/* Aether Theme Custom Styles */
-@theme {
-  --color-aether-bg: #ffffff;
-  --color-aether-text: #111827;
-  --color-aether-muted: #6b7280;
-  --color-aether-border: #e5e7eb;
-  --color-aether-link: #2563eb;
-}
-
 /* WordPress admin bar fix */
 body.admin-bar #page { padding-top: 32px; }
 @media screen and (max-width: 782px) {

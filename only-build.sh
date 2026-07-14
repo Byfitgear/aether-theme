@@ -14,7 +14,8 @@ echo -e "${GREEN}🚀 开始仅构建 Aether 主题...${NC}"
 
 # 获取主题版本
 cd "$(dirname "$0")"
-VERSION=$(grep "Version:" aether-theme/zerowp/style.css | head -1 | sed 's/Version: //' | tr -d ' ')
+THEME_DIR="aether-theme/zerowp"
+VERSION=$(grep "Version:" "$THEME_DIR/style.css" | head -1 | sed 's/Version: //' | tr -d ' ')
 if [ -z "$VERSION" ]; then
   echo -e "${RED}❌ 未能从 style.css 获取版本号${NC}"
   exit 1
@@ -23,8 +24,8 @@ echo -e "${YELLOW}📦 主题版本: $VERSION${NC}"
 
 # Tailwind CLI 路径（优先本地安装，其次系统路径）
 TAILWIND_CMD=""
-if [ -f "aether-theme/zerowp/node_modules/.bin/tailwindcss" ]; then
-  TAILWIND_CMD="aether-theme/zerowp/node_modules/.bin/tailwindcss"
+if [ -f "$THEME_DIR/node_modules/.bin/tailwindcss" ]; then
+  TAILWIND_CMD="$THEME_DIR/node_modules/.bin/tailwindcss"
 elif command -v npx &>/dev/null; then
   TAILWIND_CMD="npx @tailwindcss/cli"
 else
@@ -32,14 +33,10 @@ else
 fi
 
 # 构建 CSS（Tailwind CSS v4）
-if [ -n "$TAILWIND_CMD" ] && [ -f "aether-theme/zerowp/assets/css/input.css" ]; then
+if [ -n "$TAILWIND_CMD" ] && [ -f "$THEME_DIR/assets/css/input.css" ]; then
   echo -e "${YELLOW}🎨 构建 Tailwind CSS v4...${NC}"
-  cd aether-theme/zerowp
-  if [[ "$TAILWIND_CMD" == *"npx"* ]]; then
-    $TAILWIND_CMD -i assets/css/input.css -o assets/css/output.css --minify 2>/dev/null
-  else
-    $TAILWIND_CMD -i assets/css/input.css -o assets/css/output.css --minify 2>/dev/null
-  fi
+  cd "$THEME_DIR"
+  $TAILWIND_CMD -i assets/css/input.css -o assets/css/output.css --minify 2>/dev/null
   cd ../..
   echo -e "${GREEN}✅ CSS 构建完成${NC}"
 else
@@ -71,17 +68,17 @@ rsync -av \
   --exclude='dev-config.php' \
   --exclude='tailwind.config.js' \
   --exclude='input.css' \
-  . "$TEMP_DIR/zerowp/"
+  "$THEME_DIR/" "$TEMP_DIR/zerowp/"
 
 # 创建 ZIP 文件
 cd "$TEMP_DIR"
-zip -r "$OLDPWD/aether-theme/zerowp-theme-$VERSION.zip" zerowp/ >/dev/null
+zip -r "$OLDPWD/$THEME_DIR/zerowp-theme-$VERSION.zip" zerowp/ >/dev/null
 cd "$OLDPWD"
 
 # 验证 ZIP 文件
-if [ -f "aether-theme/zerowp-theme-$VERSION.zip" ]; then
+if [ -f "$THEME_DIR/zerowp-theme-$VERSION.zip" ]; then
   echo -e "${GREEN}✅ ZIP 文件创建成功:${NC}"
-  ls -lh "aether-theme/zerowp-theme-$VERSION.zip"
+  ls -lh "$THEME_DIR/zerowp-theme-$VERSION.zip"
 else
   echo -e "${RED}❌ ZIP 文件创建失败${NC}"
   exit 1
@@ -90,4 +87,4 @@ fi
 # 清理临时目录
 rm -rf "$TEMP_DIR"
 
-echo -e "${GREEN}✨ 构建完成! 输出: aether-theme/zerowp-theme-$VERSION.zip${NC}"
+echo -e "${GREEN}✨ 构建完成! 输出: $THEME_DIR/zerowp-theme-$VERSION.zip${NC}"
