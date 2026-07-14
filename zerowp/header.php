@@ -6,8 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <!-- Tailwind CSS v4 via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS v4 — local build (preferred) or CDN fallback -->
+    <?php
+    $css_file = get_template_directory() . '/assets/css/output.css';
+    if (file_exists($css_file)) {
+        $css_version = filemtime($css_file);
+        echo '<link rel="stylesheet" href="' . esc_url(get_template_directory_uri() . '/assets/css/output.css') . '?v=' . esc_attr($css_version) . '">';
+    } else {
+        echo '<script src="https://cdn.tailwindcss.com"></script>';
+    }
+    ?>
 
     <?php
     // Meta title
@@ -83,26 +91,35 @@
     <?php wp_head(); ?>
 </head>
 
-<body class="bg-white text-gray-900 antialiased">
+<body <?php body_class("bg-white text-gray-900 antialiased"); ?>>
     <?php wp_body_open(); ?>
 
     <div id="page" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <?php if (has_nav_menu('primary')): ?>
-            <header class="py-6 border-b border-gray-200">
+            <header class="py-6 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
-                    <a href="<?php echo esc_url(home_url('/')); ?>" class="text-xl font-bold tracking-tight hover:text-gray-600 transition-colors">
-                        <?php bloginfo('name'); ?>
-                    </a>
+                    <?php aether_site_logo(); ?>
 
-                    <nav class="flex items-center gap-6 text-sm">
+                    <nav class="flex items-center gap-4 text-sm">
                         <?php
                         wp_nav_menu(array(
                             'theme_location' => 'primary',
                             'container' => false,
                             'menu_class' => '',
-                            'link_class'   => 'text-gray-600 hover:text-gray-900 transition-colors',
+                            'link_class'   => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors',
                         ));
                         ?>
+
+                        <!-- Dark Mode Toggle -->
+                        <button id="aether-dark-toggle" type="button" aria-label="切换暗色模式"
+                                class="ml-2 p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-400 transition-colors">
+                            <svg id="icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            <svg id="icon-moon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                            </svg>
+                        </button>
                     </nav>
                 </div>
             </header>

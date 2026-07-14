@@ -14,8 +14,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <!-- Tailwind CSS v4 via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS v4 — local build (preferred) or CDN fallback -->
+    <?php
+    $css_file = get_template_directory() . '/assets/css/output.css';
+    if (file_exists($css_file)) {
+        $css_version = filemtime($css_file);
+        echo '<link rel="stylesheet" href="' . esc_url(get_template_directory_uri() . '/assets/css/output.css') . '?v=' . esc_attr($css_version) . '">';
+    } else {
+        echo '<script src="https://cdn.tailwindcss.com"></script>';
+    }
+    ?>
 
     <?php
     $meta_title = wp_get_document_title();

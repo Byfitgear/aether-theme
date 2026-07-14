@@ -1,0 +1,16 @@
+{
+  "name": "aether-theme",
+  "version": "1.2.0",
+  "scripts": {
+    "build": "npx @tailwindcss/cli -i assets/css/input.css -o assets/css/output.css --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Aether Theme - Minimalist WordPress theme with Tailwind CSS v4",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.2",
+    "tailwindcss": "^4.3.2"
+  }
+}
