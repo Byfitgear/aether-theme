@@ -6,12 +6,12 @@ get_header();
 ?>
 
 <article id="page-<?php the_ID(); ?>" <?php post_class('max-w-3xl mx-auto'); ?>>
-    <div class="prose prose-gray max-w-none">
+    <div class="prose prose-gray dark:prose-invert max-w-none">
         <?php the_content(); ?>
     </div>
 
     <?php if (comments_open() || get_comments_number()): ?>
-        <div class="mt-12 pt-8 border-t border-gray-200">
+        <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
             <?php comments_template(); ?>
         </div>
     <?php endif; ?>
