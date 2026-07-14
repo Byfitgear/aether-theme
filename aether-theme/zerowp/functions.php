@@ -33,7 +33,7 @@ function aether_register_menus() {
 }
 add_action('init', 'aether_register_menus');
 
-// 移除 WordPress 默认样式和功能（优先级高于 wp_enqueue_scripts 默认）
+// 移除 WordPress 默认样式和功能
 function aether_remove_default_styles() {
     wp_dequeue_style('wp-block-library');
     wp_dequeue_style('wp-block-library-theme');
